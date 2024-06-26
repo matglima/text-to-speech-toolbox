@@ -1,0 +1,8 @@
+edge-tts
+gtts
+pdfplumber
+spacy
+pydub
+moviepy
+youtube-transcript-api
+requests

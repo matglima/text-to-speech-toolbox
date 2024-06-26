@@ -1,2 +1,3 @@
-# text-to-speech-toolbox
-Repository with diferent tools for converting text to audio with artificial intelligence models
+# Text-to-Speech Tool Suite
+
+Description and usage instructions.
