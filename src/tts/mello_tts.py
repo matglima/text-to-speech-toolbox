@@ -13,9 +13,6 @@ def mello_tts(text, output_path, speed=1.0, speaker_id='EN-BR', lang='EN'):
   if 'EN-BR' not in speaker_ids:
       raise ValueError("Speaker ID 'EN-BR' not found in the model's speaker ID list.")
 
-  # Output path for the generated audio
-  output_path = 'en-br.wav'
-
   # Generate the audio file from the text
   model.tts_to_file(text, speaker_ids[speaker_id], output_path=output_path, speed=speed)
 

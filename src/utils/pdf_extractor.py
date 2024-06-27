@@ -70,7 +70,7 @@ cleaned_text = plain_text.replace("artifact", "")
 '''
 Splitting Text into Manageable Chunks for Text-to-Speech
 '''
-def split_text(text, max_chunk_size=4096):
+def split_text_to_chunks(text, max_chunk_size=4096):
     chunks = []  # List to hold the chunks of text
     current_chunk = ""  # String to build the current chunk
 
