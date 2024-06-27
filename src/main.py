@@ -2,14 +2,14 @@ import argparse
 import os
 from pydub import AudioSegment
 from IPython.display import Audio, display
+import chardet
 
 from tts.mello_tts import mello_tts
 from tts.google_tts import google_tts
 from tts.edge_tts import edge_tts_CLI
-
+from utils.pdf_extractor import pdf_to_markdown, markdown_to_plain_text, split_text_to_chunks, add_spaces_to_text
 
 # Usage: python main.py path/to/text/file.txt path/to/output/folder --tts_tool google --chunk_length 60
-
 
 def text_to_speech(text, output_file, tts_tool):
     if tts_tool == 'mello':
@@ -21,25 +21,43 @@ def text_to_speech(text, output_file, tts_tool):
     else:
         raise ValueError(f"Unknown TTS tool: {tts_tool}")
 
-def convert_chunks_to_audio(chunks, output_folder, tts_tool):
-    audio_files = []  # List to store the paths of generated audio files
+def convert_chunks_to_audio(chunks, output_folder, tts_tool, combined_output_file):
+    combined_audio = AudioSegment.empty()  # Initialize an empty AudioSegment
 
     # Iterate over each chunk of text
     for i, chunk in enumerate(chunks):
-        # Define the path for the output audio file
-        output_file = os.path.join(output_folder, f"chunk_{i+1}.mp3")
+        # Define a temporary path for the output audio file
+        temp_output_file = os.path.join(output_folder, f"chunk_{i+1}.mp3")
+        print(f"Processing chunk {i+1}: {temp_output_file}")
 
-        # Convert the text chunk to speech and save as an audio file
-        text_to_speech(chunk, output_file, tts_tool)
+        # Convert the text chunk to speech and save as a temporary audio file
+        text_to_speech(chunk, temp_output_file, tts_tool)
 
-        # Append the path of the created audio file to the list
-        audio_files.append(output_file)
+        # Check if the file was created
+        if not os.path.exists(temp_output_file):
+            print(f"Failed to create audio file: {temp_output_file}")
+            continue
 
-    return audio_files  # Return the list of audio file paths
+        # Load the temporary audio file and concatenate it to the combined audio
+        chunk_audio = AudioSegment.from_file(temp_output_file)
+        combined_audio += chunk_audio
+
+        # Optionally, remove the temporary file to save space
+        os.remove(temp_output_file)
+
+    # Export the combined audio file
+    combined_audio.export(combined_output_file, format="mp3")
+    return combined_output_file  # Return the path of the combined audio file
 
 def split_audio_to_chunks(audio_file, chunk_length_ms):
     audio = AudioSegment.from_file(audio_file)
     return [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
+
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as file:
+        raw_data = file.read()
+    result = chardet.detect(raw_data)
+    return result['encoding']
 
 def main():
     parser = argparse.ArgumentParser(description='Text to Speech Converter')
@@ -53,21 +71,41 @@ def main():
     # Create the output folder if it doesn't exist
     os.makedirs(args.output_folder, exist_ok=True)
 
-    # Read the content of the text file
-    with open(args.text_path, 'r') as file:
-        text = file.read()
+    # Detect the encoding of the text file
+    encoding = detect_encoding(args.text_path)
+    print(f"Detected encoding: {encoding}")
 
+    try:
+        # Read the content of the text file with the detected encoding
+        with open(args.text_path, 'r', encoding=encoding) as file:
+            text = file.read()
+    except UnicodeDecodeError:
+        # If decoding fails, try with a different encoding or handle the error
+        print(f"Failed to decode file with encoding {encoding}. Trying 'utf-8' with errors='ignore'.")
+        with open(args.text_path, 'r', encoding='utf-8', errors='ignore') as file:
+            text = file.read()
+
+    # Convert pdf to markdown (assumes text_path is a PDF file)
+    markdown_text = pdf_to_markdown(args.text_path, page_numbers=[1])
+
+    # Convert markdown to plain text
+    plain_text = markdown_to_plain_text(markdown_text)
+    
     # Split text into chunks
-    chunk_length_ms = args.chunk_length * 1000  # Convert seconds to milliseconds
-    chunks = [text[i:i + chunk_length_ms] for i in range(0, len(text), chunk_length_ms)]
+    chunks = split_text_to_chunks(plain_text)
+    
+    # Add spaces to each chunk (if required by your text processing)
+    chunks = [add_spaces_to_text(chunk) for chunk in chunks]
 
-    # Convert text chunks to audio
-    audio_files = convert_chunks_to_audio(chunks, args.output_folder, args.tts_tool)
+    # Define the path for the combined output audio file
+    combined_output_file = os.path.join(args.output_folder, "combined_audio.mp3")
 
-    # Display each chunk
-    for i, audio_file in enumerate(audio_files):
-        print(f"Playing chunk {audio_file}")
-        display(Audio(audio_file, autoplay=True))
+    # Convert text chunks to a single audio file
+    combined_audio_file = convert_chunks_to_audio(chunks, args.output_folder, args.tts_tool, combined_output_file)
+
+    # # Display the combined audio file
+    # print(f"Playing combined audio file {combined_audio_file}")
+    # display(Audio(combined_audio_file, autoplay=True))
 
 if __name__ == "__main__":
     main()
