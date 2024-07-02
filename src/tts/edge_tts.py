@@ -3,7 +3,7 @@ import subprocess
 
 def edge_tts_CLI(text, output_file, voice_model='pt-BR-ThalitaNeural'):
   # Define the command to execute
-  command = f'edge-tts --voice {voice_model} --file {text} --write-media {output_file}'
+  command = f'edge-tts --voice {voice_model} --text \'{text}\' --write-media {output_file}'
 
   try:
       # Execute the command and check for errors
