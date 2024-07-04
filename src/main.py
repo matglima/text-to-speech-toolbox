@@ -7,7 +7,7 @@ from IPython.display import Audio, display
 import chardet
 import subprocess
 
-from tts.mello_tts import mello_tts
+from tts.mello_tts import melo_tts, TTSParameters
 from tts.google_tts import google_tts
 from tts.edge_tts import edge_tts_CLI
 from utils.pdf_extractor import pdf_to_markdown, markdown_to_plain_text, split_text_to_chunks, add_spaces_to_text
@@ -18,11 +18,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def setup_logging(log_level: str) -> None:
     logging.getLogger().setLevel(log_level)
 
-def text_to_speech(text: str, output_file: str, tts_tool: str) -> None:
+def text_to_speech(text: str, output_file: str, tts_tool: str, params: str) -> None:
     try:
         logging.info(f"Using {tts_tool} TTS tool to generate audio for text: {text[:30]}...")
-        if tts_tool == 'mello':
-            mello_tts(text, output_file)
+        if tts_tool == 'melo':
+            melo_tts(text, output_file, params)
         elif tts_tool == 'google':
             google_tts(text, output_file)
         elif tts_tool == 'edge':
@@ -39,11 +39,17 @@ def text_to_speech(text: str, output_file: str, tts_tool: str) -> None:
 def convert_chunks_to_audio(chunks: List[str], output_folder: str, tts_tool: str, combined_output_file: str) -> str:
     combined_audio = AudioSegment.empty()  # Initialize an empty AudioSegment
 
+    # Receive the parameters from the user if using meloTTS
+    if tts_tool == 'melo':
+      params = TTSParameters()
+    else:
+      params = None
+
     for i, chunk in enumerate(chunks):
         temp_output_file = os.path.join(output_folder, f"chunk_{i+1}.mp3")
         logging.info(f"Processing chunk {i+1}: {temp_output_file}")
 
-        text_to_speech(chunk, temp_output_file, tts_tool)
+        text_to_speech(chunk, temp_output_file, tts_tool, params)
 
         if not os.path.exists(temp_output_file):
             logging.warning(f"Failed to create audio file: {temp_output_file}")
@@ -98,7 +104,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description='Text to Speech Converter')
     parser.add_argument('text_path', type=str, help='Path to the text file to convert')
     parser.add_argument('output_folder', type=str, help='Folder to save the output audio files')
-    parser.add_argument('--tts_tool', type=str, choices=['mello', 'google', 'edge'], default='google', help='TTS tool to use')
+    parser.add_argument('--tts_tool', type=str, choices=['melo', 'google', 'edge'], default='google', help='TTS tool to use')
     parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
 
