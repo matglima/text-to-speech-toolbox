@@ -12,6 +12,9 @@ from tts.google_tts import google_tts
 from tts.edge_tts import edge_tts_CLI
 from utils.pdf_extractor import pdf_to_markdown, markdown_to_plain_text, split_text_to_chunks, add_spaces_to_text
 
+# Import functions from generate_captions.py
+from utils.generate_captions import get_audio_duration, split_text, calculate_sentence_durations, generate_timestamps, generate_srt, generate_lrc
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -107,6 +110,7 @@ def main() -> None:
     parser.add_argument('--tts_tool', type=str, choices=['melo', 'google', 'edge'], default='google', help='TTS tool to use')
     parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
+    parser.add_argument('--generate_captions', action='store_true', help='Generate captions for the audio')
 
     args = parser.parse_args()
 
@@ -132,6 +136,17 @@ def main() -> None:
     
     logging.info("Converting text chunks to a single audio file...")
     combined_audio_file = convert_chunks_to_audio(chunks, args.output_folder, args.tts_tool, combined_output_file)
+
+    if args.generate_captions:
+        logging.info("Generating captions...")
+        text = read_file(args.text_path, encoding)
+        audio_duration = get_audio_duration(combined_audio_file)
+        sentences = split_text(text)
+        sentence_durations = calculate_sentence_durations(sentences, audio_duration)
+        timestamps = generate_timestamps(sentences, sentence_durations)
+        generate_srt(timestamps)
+        generate_lrc(timestamps)
+        logging.info("Captions generated and saved as output.srt and output.lrc")
 
     logging.info(f"Playing combined audio file {combined_audio_file}")
     display(Audio(combined_audio_file, autoplay=True))
