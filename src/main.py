@@ -130,16 +130,16 @@ def main() -> None:
         return
     
     logging.info("Adding spaces to each chunk...")
-    chunks = [add_spaces_to_text(chunk) for chunk in chunks]
+    spaced_chunks = [add_spaces_to_text(chunk) for chunk in chunks]
 
     combined_output_file = os.path.join(args.output_folder, "combined_audio.mp3")
     
     logging.info("Converting text chunks to a single audio file...")
-    combined_audio_file = convert_chunks_to_audio(chunks, args.output_folder, args.tts_tool, combined_output_file)
+    combined_audio_file = convert_chunks_to_audio(spaced_chunks, args.output_folder, args.tts_tool, combined_output_file)
 
     if args.generate_captions:
         logging.info("Generating captions...")
-        text = read_file(args.text_path, encoding)
+        text = markdown_to_plain_text(' '.join(chunks))
         audio_duration = get_audio_duration(combined_audio_file)
         sentences = split_text(text)
         sentence_durations = calculate_sentence_durations(sentences, audio_duration)

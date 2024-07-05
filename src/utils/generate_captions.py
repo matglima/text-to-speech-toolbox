@@ -22,7 +22,7 @@ def get_audio_duration(filename):
     logging.info(f"Duration of the audio is {duration} seconds")
     return duration
 
-def split_text(text, max_words_per_caption=10):
+def split_text(text, max_words_per_caption=7):
     """
     Split text into sentences and ensure each caption is not too long.
     
@@ -35,7 +35,7 @@ def split_text(text, max_words_per_caption=10):
     """
     logging.info("Splitting text into sentences.")
     # Split text by punctuation and newlines
-    raw_sentences = re.split(r'[.?!\n]', text)
+    raw_sentences = re.split(r'[?!\n]', text)
     sentences = []
     for sentence in raw_sentences:
         words = sentence.strip().split()
