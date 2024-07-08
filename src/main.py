@@ -7,7 +7,7 @@ from IPython.display import Audio, display
 import chardet
 import subprocess
 
-from tts.mello_tts import melo_tts, TTSParameters
+from tts.mello_tts import melo_tts
 from tts.google_tts import google_tts
 from tts.edge_tts import edge_tts_CLI
 from utils.pdf_extractor import pdf_to_markdown, markdown_to_plain_text, split_text_to_chunks, add_spaces_to_text
@@ -21,11 +21,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def setup_logging(log_level: str) -> None:
     logging.getLogger().setLevel(log_level)
 
-def text_to_speech(text: str, output_file: str, tts_tool: str, params: str) -> None:
+def text_to_speech(text: str, output_file: str, tts_tool: str) -> None:
     try:
         logging.info(f"Using {tts_tool} TTS tool to generate audio for text: {text[:30]}...")
         if tts_tool == 'melo':
-            melo_tts(text, output_file, params)
+            model = melo_tts()
+            model.convert_to_audio(text, output_file)
         elif tts_tool == 'google':
             google_tts(text, output_file)
         elif tts_tool == 'edge':
@@ -39,20 +40,19 @@ def text_to_speech(text: str, output_file: str, tts_tool: str, params: str) -> N
     except Exception as e:
         logging.error(f"General error occurred: {e}")
 
-def convert_chunks_to_audio(chunks: List[str], output_folder: str, tts_tool: str, combined_output_file: str) -> str:
+
+def convert_chunks_to_audio(chunks: List[str], output_folder: str, tts_tool: str, combined_output_file: str, use_default_params: bool) -> str:
     combined_audio = AudioSegment.empty()  # Initialize an empty AudioSegment
 
     # Receive the parameters from the user if using meloTTS
-    if tts_tool == 'melo':
-      params = TTSParameters()
-    else:
-      params = None
+    if tts_tool == 'melo' and not use_default_params:
+        melo_tts.prompt_user_for_parameters()
 
     for i, chunk in enumerate(chunks):
         temp_output_file = os.path.join(output_folder, f"chunk_{i+1}.mp3")
         logging.info(f"Processing chunk {i+1}: {temp_output_file}")
 
-        text_to_speech(chunk, temp_output_file, tts_tool, params)
+        text_to_speech(chunk, temp_output_file, tts_tool)
 
         if not os.path.exists(temp_output_file):
             logging.warning(f"Failed to create audio file: {temp_output_file}")
@@ -111,6 +111,7 @@ def main() -> None:
     parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
     parser.add_argument('--generate_captions', action='store_true', help='Generate captions for the audio')
+    parser.add_argument('--use_default_params', action='store_true', help='Use default parameters for meloTTS')
 
     args = parser.parse_args()
 
@@ -135,7 +136,7 @@ def main() -> None:
     combined_output_file = os.path.join(args.output_folder, "combined_audio.mp3")
     
     logging.info("Converting text chunks to a single audio file...")
-    combined_audio_file = convert_chunks_to_audio(spaced_chunks, args.output_folder, args.tts_tool, combined_output_file)
+    combined_audio_file = convert_chunks_to_audio(spaced_chunks, args.output_folder, args.tts_tool, combined_output_file, args.use_default_params)
 
     if args.generate_captions:
         logging.info("Generating captions...")
