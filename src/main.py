@@ -107,6 +107,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description='Text to Speech Converter')
     parser.add_argument('text_path', type=str, help='Path to the text file to convert')
     parser.add_argument('output_folder', type=str, help='Folder to save the output audio files')
+    parser.add_argument('output_audio_name', type=str, default='output_audio', help='Output audio name')
     parser.add_argument('--tts_tool', type=str, choices=['melo', 'google', 'edge'], default='google', help='TTS tool to use')
     parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
@@ -133,7 +134,7 @@ def main() -> None:
     logging.info("Adding spaces to each chunk...")
     spaced_chunks = [add_spaces_to_text(chunk) for chunk in chunks]
 
-    combined_output_file = os.path.join(args.output_folder, "combined_audio.mp3")
+    combined_output_file = os.path.join(args.output_folder, args.output_audio_name)
     
     logging.info("Converting text chunks to a single audio file...")
     combined_audio_file = convert_chunks_to_audio(spaced_chunks, args.output_folder, args.tts_tool, combined_output_file, args.use_default_params)
@@ -145,9 +146,9 @@ def main() -> None:
         sentences = split_text(text)
         sentence_durations = calculate_sentence_durations(sentences, audio_duration)
         timestamps = generate_timestamps(sentences, sentence_durations)
-        generate_srt(timestamps)
-        generate_lrc(timestamps)
-        logging.info("Captions generated and saved as output.srt and output.lrc")
+        generate_srt(timestamps, args.output_folder, args.output_audio_name.split('.')[0])
+        generate_lrc(timestamps, args.output_folder, args.output_audio_name.split('.')[0])
+        logging.info(f"Captions generated and saved")
 
     logging.info(f"Playing combined audio file {combined_audio_file}")
     display(Audio(combined_audio_file, autoplay=True))

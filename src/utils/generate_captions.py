@@ -2,6 +2,7 @@ import logging
 from pydub import AudioSegment
 import time
 import re
+import os
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -81,7 +82,7 @@ def generate_timestamps(sentences, durations):
     logging.info("Timestamps generated.")
     return timestamps
 
-def generate_srt(timestamps):
+def generate_srt(timestamps, output_folder:str, caption_name:str):
     """
     Generate SRT file content from timestamps.
     
@@ -94,11 +95,11 @@ def generate_srt(timestamps):
         start_time = time.strftime('%H:%M:%S', time.gmtime(start)) + f',{int((start % 1) * 1000):03d}'
         end_time = time.strftime('%H:%M:%S', time.gmtime(end)) + f',{int((end % 1) * 1000):03d}'
         srt_content += f"{i+1}\n{start_time} --> {end_time}\n{sentence.strip()}\n\n"
-    with open('output.srt', 'w') as f:
+    with open(os.path.join(output_folder, caption_name + '.srt'), 'w') as f:
         f.write(srt_content)
     logging.info("SRT file generated.")
 
-def generate_lrc(timestamps):
+def generate_lrc(timestamps, output_folder:str, caption_name:str):
     """
     Generate LRC file content from timestamps.
     
@@ -110,7 +111,7 @@ def generate_lrc(timestamps):
     for sentence, start, _ in timestamps:
         start_time = time.strftime('[%M:%S', time.gmtime(start)) + f'.{int((start % 1) * 100):02d}]'
         lrc_content += f"{start_time} {sentence.strip()}\n"
-    with open('output.lrc', 'w') as f:
+    with open(os.path.join(output_folder, caption_name + '.lrc') , 'w') as f:
         f.write(lrc_content)
     logging.info("LRC file generated.")
 
