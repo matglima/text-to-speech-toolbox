@@ -35,7 +35,7 @@ def split_text(text, max_words_per_caption=7):
     """
     logging.info("Splitting text into sentences.")
     # Split text by punctuation and newlines
-    raw_sentences = re.split(r'.[?!\n]', text)
+    raw_sentences = re.split(r'[.?!\n]', text)
     sentences = []
     for sentence in raw_sentences:
         words = sentence.strip().split()
