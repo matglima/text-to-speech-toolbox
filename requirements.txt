@@ -6,3 +6,4 @@ pydub
 moviepy
 youtube-transcript-api
 requests
+TTS
