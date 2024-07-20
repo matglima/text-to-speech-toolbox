@@ -5,7 +5,7 @@ import torch
 class coqui_tts(TTS):
   def __init__(self):
       super.__init__()
-      self.e() = 'tts_models/multilingual/multi-dataset/xtts_v2'
+      self.speaker() = 'tts_models/multilingual/multi-dataset/xtts_v2'
       
   def initialize_model(self):
       self.model = TTS(self.model_name, gpu=torch.cuda.is_available())
@@ -28,29 +28,9 @@ class coqui_tts(TTS):
         
         try:
             # Generate the audio file from the text
-            self.model.tts_to_file(text, self.speaker_ids[self.speaker_id], output_path=output_path, speed=self.speed)
+            self.model.tts_to_file(text, speaker=self.speaker_ids[self.speaker_id], file_path=output_path, speed=self.speed, language=self.lang)
         except ValueError as ve:
             print(f"Error: {ve}")
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-# generate speech by cloning a voice using default settings
-tts.tts_to_file(text="It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
-                file_path="output.wav",
-                speaker_wav="/path/to/target/speaker.wav",
-                language="en")
-
 
