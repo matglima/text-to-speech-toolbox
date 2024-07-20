@@ -8,7 +8,7 @@ class coqui_tts(TTS):
       self.speaker() = 'tts_models/multilingual/multi-dataset/xtts_v2'
       
   def initialize_model(self):
-      self.model = TTS(self.model_name, gpu=torch.cuda.is_available())
+      self.model = TTS(model_name=self.speaker, gpu=torch.cuda.is_available())
       
   def prompt_user_for_parameters(self):
       speed_input = input("Enter the speed (default: 1.0): ") or "1.0"
