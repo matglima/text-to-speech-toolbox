@@ -196,7 +196,7 @@ def process_pdf(file_path: str, split_into_chunks: bool = True, max_chunk_size: 
     else: 
         return [text]  # Return as a single-item list for consistency
 
-def process_text(file_path: str, encoding: str, split_into_chunks: bool = True, max_chunk_size: int = 4096) -> List[str]:
+def process_text(file_path: str, encoding: str, split_into_chunks: bool = False, max_chunk_size: int = 4096) -> List[str]:
     """
     Process a text file, reading its contents and optionally splitting into chunks.
     
@@ -222,7 +222,6 @@ def main() -> None:
     parser.add_argument('output_folder', type=str, help='Folder to save the output audio files')
     parser.add_argument('output_audio_name', type=str, help='Output audio name')
     parser.add_argument('--tts_tool', type=str, choices=['melo', 'google', 'edge', 'coqui'], default='google', help='TTS tool to use')
-    parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
     parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
     parser.add_argument('--generate_captions', action='store_true', help='Generate captions for the audio')

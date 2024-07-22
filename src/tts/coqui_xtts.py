@@ -1,7 +1,7 @@
 from TTS.api import TTS
 import torch
 
-class CoquiTTS:
+class coqui_tts:
     def __init__(self):
         self.speaker = 'tts_models/multilingual/multi-dataset/xtts_v2'
         self.model = None
@@ -30,7 +30,7 @@ class CoquiTTS:
         
         try:
             # Generate the audio file from the text
-            self.model.tts_to_file(text, file_path=output_path, speed=self.speed, language=self.lang)
+            self.model.tts_to_file(text, file_path=output_path, speaker_wav='/content/text-to-speech-toolbox/src/examples/female.wav',speed=self.speed, language=self.lang)
         except ValueError as ve:
             print(f"Error: {ve}")
         except Exception as e:

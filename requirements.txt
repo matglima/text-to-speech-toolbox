@@ -7,3 +7,4 @@ moviepy
 youtube-transcript-api
 requests
 TTS
+transformers >= 4.42
