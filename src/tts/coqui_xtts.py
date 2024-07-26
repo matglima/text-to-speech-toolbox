@@ -1,6 +1,8 @@
 from TTS.api import TTS
 import torch
-
+import os
+# By using XTTS you agree to CPML license https://coqui.ai/cpml
+os.environ["COQUI_TOS_AGREED"] = "1"
 class coqui_tts:
     def __init__(self):
         self.speaker = 'tts_models/multilingual/multi-dataset/xtts_v2'

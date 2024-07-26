@@ -10,7 +10,7 @@ from pydub import AudioSegment
 from IPython.display import Audio, display
 
 # Local imports
-from tts.mello_tts import melo_tts
+# from tts.mello_tts import melo_tts
 from tts.google_tts import google_tts
 from tts.edge_tts import edge_tts_CLI
 from tts.coqui_xtts import coqui_tts
@@ -53,7 +53,7 @@ def create_model_wrapper(model_class: Callable) -> Callable:
 TTS_TOOLS: Dict[str, Callable] = {
     'edge': edge_tts_wrapper,
     'google': google_tts_wrapper,
-    'melo': create_model_wrapper(melo_tts),
+    # 'melo': create_model_wrapper(melo_tts),
     'coqui': create_model_wrapper(coqui_tts)
 }
 
@@ -192,11 +192,11 @@ def process_pdf(file_path: str, split_into_chunks: bool = True, max_chunk_size: 
     
     logging.info("Splitting text into chunks...")
     if split_into_chunks:
-        return split_text_to_chunks(text)
+        return split_text_to_chunks(text, max_chunk_size)
     else: 
         return [text]  # Return as a single-item list for consistency
 
-def process_text(file_path: str, encoding: str, split_into_chunks: bool = False, max_chunk_size: int = 4096) -> List[str]:
+def process_text(file_path: str, encoding: str, split_into_chunks: bool = True, max_chunk_size: int = 4096) -> List[str]:
     """
     Process a text file, reading its contents and optionally splitting into chunks.
     
@@ -211,7 +211,7 @@ def process_text(file_path: str, encoding: str, split_into_chunks: bool = False,
     text = read_file(file_path, encoding)
     logging.info("Splitting text into chunks...")
     if split_into_chunks:
-        return split_text_to_chunks(text)
+        return split_text_to_chunks(text, max_chunk_size)
     else: 
         return [text]  # Return as a single-item list for consistency
 
@@ -222,7 +222,7 @@ def main() -> None:
     parser.add_argument('output_folder', type=str, help='Folder to save the output audio files')
     parser.add_argument('output_audio_name', type=str, help='Output audio name')
     parser.add_argument('--tts_tool', type=str, choices=['melo', 'google', 'edge', 'coqui'], default='google', help='TTS tool to use')
-    parser.add_argument('--chunk_length', type=int, default=60, help='Chunk length in seconds')
+    parser.add_argument('--chunk_length', type=int, default=200, help='Chunk length')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
     parser.add_argument('--generate_captions', action='store_true', help='Generate captions for the audio')
     parser.add_argument('--use_default_params', action='store_true', help='Use default parameters for TTS')
@@ -237,7 +237,7 @@ def main() -> None:
     logging.info(f"Detected encoding: {encoding}")
 
     # Determine whether to split into chunks based on the TTS tool
-    split_into_chunks = args.tts_tool != 'coqui'
+    split_into_chunks = True#args.tts_tool != 'coqui'
     
     if args.text_path.lower().endswith('.pdf'):
         chunks = process_pdf(args.text_path, split_into_chunks, max_chunk_size = args.chunk_length)
