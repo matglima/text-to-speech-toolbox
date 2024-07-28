@@ -10,39 +10,29 @@ from pydub import AudioSegment
 from IPython.display import Audio, display
 
 # Local imports
-# from tts.mello_tts import melo_tts
-from tts.google_tts import google_tts
-from tts.edge_tts import edge_tts_CLI
-from tts.coqui_xtts import coqui_tts
 from utils.pdf_extractor import pdf_to_markdown, markdown_to_plain_text, split_text_to_chunks, add_spaces_to_text
 from utils.generate_captions import get_audio_duration, split_text, calculate_sentence_durations, generate_timestamps, generate_srt, generate_lrc
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def setup_logging(log_level: str) -> None:
-    """Set up logging with the specified log level."""
-    logging.getLogger().setLevel(log_level)
-
 def edge_tts_wrapper(text: str, output_file: str) -> None:
-    """Wrapper function for edge TTS."""
+    from tts.edge_tts import edge_tts_CLI
     edge_tts_CLI(text, output_file)
 
 def google_tts_wrapper(text: str, output_file: str) -> None:
-    """Wrapper function for Google TTS."""
+    from tts.google_tts import google_tts
     google_tts(text, output_file)
 
-def create_model_wrapper(model_class: Callable) -> Callable:
-    """
-    Create a wrapper function for TTS models that require initialization.
-    
-    Args:
-        model_class: The class of the TTS model to be wrapped.
-    
-    Returns:
-        A wrapper function that initializes the model and converts text to audio.
-    """
+def create_model_wrapper(model_name: str) -> Callable:
     def wrapper(text: str, output_file: str, use_default_params: bool) -> None:
+        if model_name == 'melo':
+            from tts.mello_tts import melo_tts as model_class
+        elif model_name == 'coqui':
+            from tts.coqui_xtts import coqui_tts as model_class
+        else:
+            raise ValueError(f"Unknown model: {model_name}")
+        
         model = model_class()
         if not use_default_params:
             model.prompt_user_for_parameters()
@@ -53,8 +43,8 @@ def create_model_wrapper(model_class: Callable) -> Callable:
 TTS_TOOLS: Dict[str, Callable] = {
     'edge': edge_tts_wrapper,
     'google': google_tts_wrapper,
-    # 'melo': create_model_wrapper(melo_tts),
-    'coqui': create_model_wrapper(coqui_tts)
+    'melo': create_model_wrapper('melo'),
+    'coqui': create_model_wrapper('coqui')
 }
 
 def text_to_speech(text: str, output_file: str, tts_tool: str, use_default_params: bool = True) -> None:
@@ -81,6 +71,9 @@ def text_to_speech(text: str, output_file: str, tts_tool: str, use_default_param
             tts_function(text, output_file)
             
         logging.info(f"Generated audio file: {output_file}")
+    except ImportError as e:
+        logging.error(f"Failed to import necessary module for {tts_tool}: {e}")
+        logging.error(f"Make sure you have installed the correct dependencies for {tts_tool}")
     except subprocess.CalledProcessError as e:
         logging.error(f"Error occurred while running {tts_tool}: {e.output}")
         logging.error(f"Return code: {e.returncode}")
