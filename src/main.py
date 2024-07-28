@@ -239,14 +239,16 @@ def main() -> None:
     else:
         logging.error("Unsupported file type. Please provide a PDF or TXT file.")
         return
-    
-    logging.info("Adding spaces to each chunk...")
-    spaced_chunks = [add_spaces_to_text(chunk) for chunk in chunks]
+
+
+    if args.tts_tool not in ['coqui']:
+        logging.info("Adding spaces to each chunk...")
+        chunks = [add_spaces_to_text(chunk) for chunk in chunks]
 
     combined_output_file = os.path.join(args.output_folder, f"{args.output_audio_name.split('.')[0]}.mp3")
     
     logging.info("Converting text chunks to a single audio file...")
-    combined_audio_file = convert_chunks_to_audio(spaced_chunks, args.output_folder, args.tts_tool, combined_output_file, args.use_default_params)
+    combined_audio_file = convert_chunks_to_audio(chunks, args.output_folder, args.tts_tool, combined_output_file, args.use_default_params)
 
     if args.generate_captions:
         logging.info("Generating captions...")
