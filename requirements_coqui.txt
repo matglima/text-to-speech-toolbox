@@ -1,9 +1,9 @@
 pdfplumber
-spacy
+spacy>=3.7
 pydub
 moviepy
 youtube-transcript-api
 requests
 TTS>=0.22
 transformers>=4.42
-numpy>=1.23
+numpy>=1.22
