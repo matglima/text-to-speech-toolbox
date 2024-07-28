@@ -7,3 +7,4 @@ requests
 TTS>=0.22
 transformers>=4.42
 numpy>=1.22
+nltk
