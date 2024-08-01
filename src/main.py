@@ -11,7 +11,7 @@ from IPython.display import Audio, display
 
 # Local imports
 from utils.pdf_extractor import pdf_to_markdown, markdown_to_plain_text, split_text_to_chunks, add_spaces_to_text
-from utils.generate_captions import split_text, calculate_sentence_durations, generate_timestamps, generate_srt, generate_lrc
+from utils.generate_captions import get_audio_duration, split_text, calculate_sentence_durations, generate_timestamps, generate_srt, generate_lrc
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
