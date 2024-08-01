@@ -77,9 +77,26 @@ def generate_captions(text, audio_duration, output_folder, caption_name):
     timestamps = generate_timestamps(sentences, sentence_durations)
     generate_srt(timestamps, output_folder, caption_name)
     generate_lrc(timestamps, output_folder, caption_name)
-
+from pydub import AudioSegment    
+def get_audio_duration(filename):
+    """
+    Get the duration of an audio file in seconds.
+    
+    Parameters:
+    filename (str): Path to the audio file.
+    
+    Returns:
+    float: Duration of the audio file in seconds.
+    """
+    logging.info(f"Getting duration for {filename}")
+    audio = AudioSegment.from_file(filename)
+    duration = len(audio) / 1000.0  # pydub calculates duration in milliseconds
+    logging.info(f"Duration of the audio is {duration} seconds")
+    return duration
 # # Example usage:
-# text = "Your book summary text goes here."
+# with open('/content/central-places.txt','r') as file:
+#   text = file.read()
+# # text = "Your book summary text goes here."
 # audio_filename = 'output.wav'  # or 'output.mp3'
 # audio_duration = get_audio_duration(audio_filename)
 # sentences = split_text(text)
