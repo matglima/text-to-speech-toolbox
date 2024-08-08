@@ -7,9 +7,10 @@ class coqui_tts:
     def __init__(self):
         self.speaker = 'tts_models/multilingual/multi-dataset/xtts_v2'
         self.model = None
-        self.speed = 1.0
+        self.speed = 0.8
         self.lang = 'en'
         self.model_name = 'tts_models/multilingual/multi-dataset/xtts_v2'
+        self.speaker_wav = '/content/text-to-speech-toolbox/src/examples/female.wav'
 
     def initialize_model(self):
         self.model = TTS(model_name=self.model_name, gpu=torch.cuda.is_available())
@@ -32,7 +33,7 @@ class coqui_tts:
         
         try:
             # Generate the audio file from the text
-            self.model.tts_to_file(text, file_path=output_path, speaker_wav='/content/text-to-speech-toolbox/src/examples/female.wav',speed=self.speed, language=self.lang)
+            self.model.tts_to_file(text, file_path=output_path, speaker_wav=self.speaker_wav, speed=self.speed, language=self.lang)
         except ValueError as ve:
             print(f"Error: {ve}")
         except Exception as e:
