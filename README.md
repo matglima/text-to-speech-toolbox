@@ -1,5 +1,3 @@
-Here's a simple README for the GitHub repository:
-
 **Text to Speech Toolbox**
 ==========================
 
