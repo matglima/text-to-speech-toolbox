@@ -5,4 +5,6 @@ moviepy
 youtube-transcript-api
 requests
 TTS>=0.22
+numpy>=1.22
 transformers>=4.42
+nltk
