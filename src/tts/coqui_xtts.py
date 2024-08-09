@@ -10,7 +10,16 @@ class coqui_tts:
         self.speed = 0.8
         self.lang = 'en'
         self.model_name = 'tts_models/multilingual/multi-dataset/xtts_v2'
-        self.speaker_wav = '/content/text-to-speech-toolbox/src/examples/female.wav'
+
+        # Get the absolute path of the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Construct the path to the female.wav file
+        female_wav_path = os.path.join(script_dir, "../../text-to-speech-toolbox/src/examples/female.wav")
+        
+        # Print the path
+        print(female_wav_path)
+        self.speaker_wav = female_wav_path
 
     def initialize_model(self):
         self.model = TTS(model_name=self.model_name, gpu=torch.cuda.is_available())
