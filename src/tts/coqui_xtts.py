@@ -15,7 +15,7 @@ class coqui_tts:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         
         # Construct the path to the female.wav file
-        female_wav_path = os.path.join(script_dir, "../../text-to-speech-toolbox/src/examples/female.wav")
+        female_wav_path = os.path.join(script_dir, "../examples/female.wav")
         
         # Print the path
         print(female_wav_path)
